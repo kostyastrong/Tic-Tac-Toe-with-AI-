@@ -1,6 +1,7 @@
-package com.javafrm;
+package tictactoe;
 
 import java.util.Scanner;
+import java.util.Random;
 
 public class Main {
 
@@ -131,39 +132,74 @@ public class Main {
         return upDown | downUp;
     }
 
-    public static int whoWin() {
-        printField();
-        int ret = 0;
-        for (int i = 0; i < 3; ++i) {
-            boolean thisLine = oneLine(i) | oneColumn(i);
-            if (thisLine) {
-                System.out.printf("%c wins", conformity[field[i][0]]);
-                return field[i][0];
+    public static boolean whoWin(boolean res) {
+        if (res) {
+            for (int i = 0; i < 3; ++i) {
+                if (oneLine(i)) {
+                    System.out.printf("%c wins", conformity[field[i][0]]);
+                    return false;
+                } else {
+                    System.out.printf("%c wins", conformity[field[0][i]]);
+                    return false;
+                }
             }
-        }
-        if (diagonals()) {
-            System.out.printf("%c wins", conformity[field[1][1]]);
-            return field[1][1];
-        }
-        boolean empty = false;
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                empty = empty | field[i][j] == 0;
+            if (diagonals()) {
+                System.out.printf("%c wins", conformity[field[1][1]]);
+                return false;
             }
-        }
-        if (! empty) {
-            System.out.println("Draw");
+            boolean empty = false;
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    empty = empty | field[i][j] == 0;
+                }
+            }
+            if (! empty) {
+                System.out.println("Draw");
+                return false;
+            } else {
+                System.out.println("Game not finished");
+            }
         } else {
-            System.out.println("Game not finished");
+            boolean ret = false;
+            for (int i = 0; i < 3; ++i) {
+                boolean thisLine = oneLine(i) | oneColumn(i);
+                ret = ret | thisLine;
+            }
+            ret = ret | diagonals();
+            boolean empty = false;
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    empty = empty | field[i][j] == 0;
+                }
+            }
+            return ret | !empty;
         }
-
-        return 0;
+        return false;
     }
 
+
+    public static void turnMachine() {
+        Random random = new Random();
+        int x = random.nextInt(3), y = random.nextInt(3);
+        while (field[y][x] != 0) {
+            x = random.nextInt(3);
+            y = random.nextInt(3);
+        }
+        field[y][x] = 2;
+        System.out.println("Making move level \"easy\"");
+    }
     public static void main(String[] args) {
-        defaultValues();
         printField();
-        turn();
-        whoWin();
+        boolean player = true;
+        while (!whoWin(false)) {
+            if (player) {
+                turn();
+            } else {
+                turnMachine();
+            }
+            player = !player;
+            printField();
+        }
+        whoWin(true);
     }
 }
